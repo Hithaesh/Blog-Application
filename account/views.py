@@ -1,7 +1,7 @@
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .serializers import RegisterSerializer
+from .serializers import RegisterSerializer, LoginSerialize
 
 
 class RegisterView(APIView):
@@ -36,4 +36,28 @@ class RegisterView(APIView):
       return Response({
         "data": str(e),
         "message": "Inside Exception Block"
+      }, status= status.HTTP_400_BAD_REQUEST)
+    
+class LoginView(APIView):
+  def post(self, request):
+    try:
+
+      login_data = request.data
+
+      serializer = LoginSerialize(data = login_data)
+
+      if not serializer.is_valid():
+        return Response({
+          "data": serializer.errors,
+          "message": "Something went wrong!"
+        }, status= status.HTTP_400_BAD_REQUEST)
+      
+      response = serializer.get_jwt_token(login_data)
+
+      return Response(response, status=status.HTTP_200_OK)
+    except Exception as e:
+      print(e)
+      return Response({
+        "data": {},
+        "message": "Inside the Exception Block"
       }, status= status.HTTP_400_BAD_REQUEST)
